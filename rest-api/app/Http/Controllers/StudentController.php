@@ -51,24 +51,30 @@ class StudentController extends Controller
     {
 
         $students = Student::find($id);
-        // $students->nama = $request->nama;
-        // $students->nim = $request->nim;
-        // $students->email = $request->email;
-        // $students->jurusan = $request->jurusan;
-        $input = [
-            'nama' => $request->nama,
-            'nim' => $request->nim,
-            'email' => $request->email,
-            'jurusan' => $request->jurusan
-        ];
-        $students->update($input);
-       
-        $data = [
-            'message' => 'Students is Update successfully',
-            'data' => $students
-        ];
-
-        return response()->json($data, 200);
+        if ($students) {
+            $input = [
+                'nama' => $request->nama ?? $request->nama,
+                'nim' => $request->nim ?? $request->nim,
+                'email' => $request->email ?? $request->email,
+                'jurusan' => $request->jurusan ?? $request->jurusan
+            ];
+            $students->update($input);
+    
+            $data = [
+                'message' => 'Students is Update successfully',
+                'data' => $students
+            ];
+    
+            return response()->json($data, 200);
+        } else {
+            $data = [
+                'message' => 'Students is Update Not successfully',
+                'data' => $students
+            ];
+    
+            return response()->json($data, 200);
+        }
+        
     }
 
     /**
@@ -77,13 +83,41 @@ class StudentController extends Controller
     public function destroy(string $id)
     {
         $students = Student::find($id);
-        $students->delete();
 
-        $data = [
-            'message' => 'Students is Delete successfully',
-            'data' => $students
-        ];
+        if ($students) {
+            $students->delete();
 
-        return response()->json($data, 200);
+            $data = [
+                'message' => 'Students is Delete successfully',
+                'data' => $students
+            ];
+            return response()->json($data, 200);
+        } else {
+            $data = [
+                'message' => 'Students is Delete Not successfully',
+                'data' => ''
+            ];
+            return response()->json($data, 200);
+        }
+    }
+    public function show(string $id)
+    {
+        $students = Student::find($id);
+
+        if ($students) {
+            $data = [
+                'message' => 'Student is Show successfully',
+                'data' => $students
+            ];
+            return response()->json($data, 200);
+        } else {
+            $data = [
+                'message' => 'Student is Show not successfully',
+                'data' => ''
+            ];
+            return response()->json($data, 200);
+        }
+        
+
     }
 }
