@@ -17,7 +17,7 @@ class Animal
 
     public function store($newAnimal)
     {
-        $this->animals[] = $newAnimal;
+        array_push($this->animals, $newAnimal);
     }
 
     public function update($index, $newAnimal)
