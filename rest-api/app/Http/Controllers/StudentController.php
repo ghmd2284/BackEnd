@@ -28,13 +28,20 @@ class StudentController extends Controller
     public function store(Request $request)
     {
 
-        $input = [
-            'nama' => $request->nama,
-            'nim' => $request->nim,
-            'email' => $request->email,
-            'jurusan' => $request->jurusan
-        ];
-        $students = Student::create($input);
+        // $input = [
+        //     'nama' => $request->nama,
+        //     'nim' => $request->nim,
+        //     'email' => $request->email,
+        //     'jurusan' => $request->jurusan
+        // ];
+        $validatedata = $request->validate([
+            'nama'   => 'required',
+            'nim' => 'numeric|required',
+            'email' => 'email|required',
+            'jurusan' => 'required'
+
+        ]);
+        $students = Student::create($validatedata);
 
         $data = [
             'message' => 'Students is created successfully',
@@ -59,22 +66,21 @@ class StudentController extends Controller
                 'jurusan' => $request->jurusan ?? $request->jurusan
             ];
             $students->update($input);
-    
+
             $data = [
                 'message' => 'Students is Update successfully',
                 'data' => $students
             ];
-    
+
             return response()->json($data, 200);
         } else {
             $data = [
                 'message' => 'Students is Update Not successfully',
                 'data' => $students
             ];
-    
+
             return response()->json($data, 200);
         }
-        
     }
 
     /**
@@ -117,7 +123,60 @@ class StudentController extends Controller
             ];
             return response()->json($data, 200);
         }
-        
-
     }
+    public function search()
+    {
+        // $students = Student::where('nama', 'LIKE', '%' . $nama . '%')->get();
+
+        // if ($students->isEmpty()) {
+        //     $data = [
+        //         'message' => 'Resource not found',
+        //         'data' => $students
+        //     ];
+
+        //     return response()->json($data, 404);
+        // } else {
+        //     $data = [
+        //         'message' => 'Get searched resource',
+        //         'data' => $students
+        //     ];
+
+        //     # mengembalikan data (json) dan kode 200
+        //     return response()->json($data, 200);
+        // }
+
+        $dataStudent = [
+            'nama',
+            'nim',
+            'email',
+            'jurusan'
+        ];
+
+        if (request()->has('sort') && request()->has('order')) {
+            $sort = request('sort');
+            $order = request('order');
+
+            $formatOrders = ['asc', 'desc'];
+            $order = in_array(strtolower($order), $formatOrders) ? strtolower($order) : 'asc';
+
+            $students = Student::orderBy($sort, $order)->get();
+            $data = [
+                'message' => 'Get searched resource',
+                'data' => $students
+            ];
+
+            # mengembalikan data (json) dan kode 200
+            return response()->json($data, 200);
+        } else if (request()->has($dataStudent)) {
+            $students = Student::where($dataStudent, 'LIKE', "%$dataStudent%")->get();
+            $data = [
+                'message' => 'Get searched resource',
+                'data' => $students
+            ];
+
+            # mengembalikan data (json) dan kode 200
+            return response()->json($data, 200);
+        }
+    }
+        
 }
