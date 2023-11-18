@@ -108,6 +108,14 @@ class StudentController extends Controller
     }
     public function show(string $id)
     {
+        if (empty($id)) {
+            $data = [
+                'message' => 'No ID provided',
+                'data' => ''
+            ];
+            return response()->json($data, 400);
+        }
+
         $students = Student::find($id);
 
         if ($students) {
@@ -121,30 +129,12 @@ class StudentController extends Controller
                 'message' => 'Student is Show not successfully',
                 'data' => ''
             ];
-            return response()->json($data, 200);
+            return response()->json($data, 404);
         }
     }
+
     public function search()
     {
-        // $students = Student::where('nama', 'LIKE', '%' . $nama . '%')->get();
-
-        // if ($students->isEmpty()) {
-        //     $data = [
-        //         'message' => 'Resource not found',
-        //         'data' => $students
-        //     ];
-
-        //     return response()->json($data, 404);
-        // } else {
-        //     $data = [
-        //         'message' => 'Get searched resource',
-        //         'data' => $students
-        //     ];
-
-        //     # mengembalikan data (json) dan kode 200
-        //     return response()->json($data, 200);
-        // }
-
         $dataStudent = [
             'nama',
             'nim',
@@ -160,23 +150,40 @@ class StudentController extends Controller
             $order = in_array(strtolower($order), $formatOrders) ? strtolower($order) : 'asc';
 
             $students = Student::orderBy($sort, $order)->get();
-            $data = [
-                'message' => 'Get searched resource',
-                'data' => $students
-            ];
-
-            # mengembalikan data (json) dan kode 200
-            return response()->json($data, 200);
-        } else if (request()->has($dataStudent)) {
-            $students = Student::where($dataStudent, 'LIKE', "%$dataStudent%")->get();
-            $data = [
-                'message' => 'Get searched resource',
-                'data' => $students
-            ];
-
-            # mengembalikan data (json) dan kode 200
-            return response()->json($data, 200);
+            if ($students->isEmpty()) {
+                $data = [
+                    'message' => 'No students found',
+                    'data' => ''
+                ];
+                return response()->json($data, 404);
+            } else {
+                $data = [
+                    'message' => 'Get searched resource',
+                    'data' => $students
+                ];
+                return response()->json($data, 200);
+            }
+        } else {
+            $query = Student::query();
+            foreach ($dataStudent as $field) {
+                if (request()->has($field)) {
+                    $query = $query->orWhere($field, 'LIKE', '%' . request($field) . '%');
+                }
+            }
+            $students = $query->get();
+            if ($students->isEmpty()) {
+                $data = [
+                    'message' => 'No students found',
+                    'data' => ''
+                ];
+                return response()->json($data, 404);
+            } else {
+                $data = [
+                    'message' => 'Get searched resource',
+                    'data' => $students
+                ];
+                return response()->json($data, 200);
+            }
         }
     }
-        
 }
