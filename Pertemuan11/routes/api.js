@@ -7,8 +7,9 @@ router.route("/students")
   .get(StudentController.index)
   .post(StudentController.store);
 
-// router.route("/students/:id")
-//   .put(StudentController.update)
-//   .delete(StudentController.destroy);
+router.route("/students/:id")
+  .put(StudentController.update)
+  .delete(StudentController.destroy)
+  .get(StudentController.show);
 
 export default router;
